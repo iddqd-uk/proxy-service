@@ -1,2 +1,3 @@
-# proxy-service
-:arrows_clockwise: Proxy service
+# Proxy service
+
+Stack of the services for proxying different kinds (such as `HTTP` and `TCP`) of traffic.
