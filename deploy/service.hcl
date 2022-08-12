@@ -28,7 +28,7 @@ locals {
   mtg_version = "2.1.7"
 
   # renovate: source=github-releases name=tarampampam/3proxy-docker
-  z3proxy_version = "1.4.0"
+  z3proxy_version = "1.5.0"
 }
 
 # https://www.nomadproject.io/docs/job-specification/job
