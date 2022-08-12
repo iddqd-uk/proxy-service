@@ -10,7 +10,7 @@ variable "tg_domain" {
 
 locals {
   # renovate: source=github-releases name=9seconds/mtg
-  mtg_version = "2.1.6"
+  mtg_version = "2.1.7"
 }
 
 # https://www.nomadproject.io/docs/job-specification/job
