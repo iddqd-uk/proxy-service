@@ -119,7 +119,7 @@ job "proxy-service" {
   }
 
   group "web-proxy" {
-    count = 1
+    count = 0
 
     scaling {
       enabled = true
