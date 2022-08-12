@@ -162,7 +162,7 @@ job "proxy-service" {
           "traefik.enable=true",
           "traefik.tcp.routers.3proxy.entrypoints=https",
           "traefik.tcp.routers.3proxy.rule=HostSNI(`${ var.web_proxy_subdomain }.iddqd.uk`)",
-          "traefik.tcp.routers.3proxy.tls.tls.certResolver=lets-encrypt",
+          "traefik.tcp.routers.3proxy.tls.certResolver=lets-encrypt",
           "traefik.tcp.services.3proxy.loadbalancer.server.port=${NOMAD_HOST_PORT_http_proxy}",
         ]
 
