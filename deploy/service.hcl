@@ -160,10 +160,10 @@ job "proxy-service" {
 
           # Traefik tag examples: https://doc.traefik.io/traefik/routing/providers/consul-catalog/
           "traefik.enable=true",
-          "traefik.tcp.routers.mtg.entrypoints=https",
-          "traefik.tcp.routers.mtg.rule=HostSNI(`${ var.web_proxy_domain }.iddqd.uk`)",
-          "traefik.tcp.routers.mtg.tls.passthrough=true",
-          "traefik.tcp.services.mtg.loadbalancer.server.port=${NOMAD_HOST_PORT_http_proxy}",
+          "traefik.tcp.routers.3proxy.entrypoints=https",
+          "traefik.tcp.routers.3proxy.rule=HostSNI(`${ var.web_proxy_domain }.iddqd.uk`)",
+          "traefik.tcp.routers.3proxy.tls.passthrough=true",
+          "traefik.tcp.services.3proxy.loadbalancer.server.port=${NOMAD_HOST_PORT_http_proxy}",
         ]
 
         check {
