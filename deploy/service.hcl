@@ -3,7 +3,7 @@ variable "tg_secret" {
   description = "Generate a new secret: `docker run --rm nineseconds/mtg:2 generate-secret <mtg-subdomain>.iddqd.uk`"
 }
 
-variable "tg_domain" {
+variable "tg_subdomain" {
   type        = string
   description = "Telegram subdomain"
 }
@@ -18,7 +18,7 @@ variable "web_proxy_password" {
   default = "pass"
 }
 
-variable "web_proxy_domain" {
+variable "web_proxy_subdomain" {
   type        = string
   description = "Web proxy subdomain"
 }
@@ -102,7 +102,7 @@ job "proxy-service" {
           # Traefik tag examples: https://doc.traefik.io/traefik/routing/providers/consul-catalog/
           "traefik.enable=true",
           "traefik.tcp.routers.mtg.entrypoints=https",
-          "traefik.tcp.routers.mtg.rule=HostSNI(`${ var.tg_domain }.iddqd.uk`)",
+          "traefik.tcp.routers.mtg.rule=HostSNI(`${ var.tg_subdomain }.iddqd.uk`)",
           "traefik.tcp.routers.mtg.tls.passthrough=true",
           "traefik.tcp.services.mtg.loadbalancer.server.port=${NOMAD_HOST_PORT_tg}",
         ]
@@ -146,11 +146,11 @@ job "proxy-service" {
       }
 
       # https://www.nomadproject.io/docs/job-specification/resources
-      #  resources {
-      #    cpu        = 350 # in MHz
-      #    memory     = 64 # in MB
-      #    memory_max = 256 # in MB
-      #  }
+      resources {
+        cpu        = 150 # in MHz
+        memory     = 64 # in MB
+        memory_max = 128 # in MB
+      }
 
       # https://www.nomadproject.io/docs/job-specification/service
       service {
@@ -161,7 +161,7 @@ job "proxy-service" {
           # Traefik tag examples: https://doc.traefik.io/traefik/routing/providers/consul-catalog/
           "traefik.enable=true",
           "traefik.tcp.routers.3proxy.entrypoints=https",
-          "traefik.tcp.routers.3proxy.rule=HostSNI(`${ var.web_proxy_domain }.iddqd.uk`)",
+          "traefik.tcp.routers.3proxy.rule=HostSNI(`${ var.web_proxy_subdomain }.iddqd.uk`)",
           "traefik.tcp.routers.3proxy.tls.passthrough=true",
           "traefik.tcp.services.3proxy.loadbalancer.server.port=${NOMAD_HOST_PORT_http_proxy}",
         ]

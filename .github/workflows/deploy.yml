@@ -69,9 +69,9 @@ jobs:
       - run: |
           nomad run \
             -var="tg_secret=${{ steps.tg-proxy-secret.outputs.secret }}" \
-            -var="tg_domain=${{ steps.tg-proxy-subdomain.outputs.secret }}" \
+            -var="tg_subdomain=${{ steps.tg-proxy-subdomain.outputs.secret }}" \
             -var="web_proxy_login=${{ steps.web-proxy-login.outputs.secret }}" \
             -var="web_proxy_password=${{ steps.web-proxy-password.outputs.secret }}" \
-            -var="web_proxy_domain=${{ steps.web-proxy-subdomain.outputs.secret }}" \
+            -var="web_proxy_subdomain=${{ steps.web-proxy-subdomain.outputs.secret }}" \
               ./deploy/service.hcl
         env: {NOMAD_ADDR: 'https://nomad.iddqd.uk/', NOMAD_TOKEN: '${{ steps.deploy-token.outputs.secret }}'}
