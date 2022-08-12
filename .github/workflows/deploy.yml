@@ -43,11 +43,35 @@ jobs:
           project: proxy-service
           secret-name: TG_PROXY_SUBDOMAIN
 
+      - uses: gacts/fetch-doppler-secret@v1
+        id: web-proxy-login
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: WEB_PROXY_LOGIN
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: web-proxy-password
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: WEB_PROXY_PASSWORD
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: web-proxy-subdomain
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: WEB_PROXY_SUBDOMAIN
+
       - uses: gacts/install-nomad@v1
 
       - run: |
           nomad run \
             -var="tg_secret=${{ steps.tg-proxy-secret.outputs.secret }}" \
             -var="tg_domain=${{ steps.tg-proxy-subdomain.outputs.secret }}" \
+            -var="web_proxy_login=${{ steps.web-proxy-login.outputs.secret }}" \
+            -var="web_proxy_password=${{ steps.web-proxy-password.outputs.secret }}" \
+            -var="web_proxy_domain=${{ steps.web-proxy-subdomain.outputs.secret }}" \
               ./deploy/service.hcl
         env: {NOMAD_ADDR: 'https://nomad.iddqd.uk/', NOMAD_TOKEN: '${{ steps.deploy-token.outputs.secret }}'}

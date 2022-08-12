@@ -8,9 +8,27 @@ variable "tg_domain" {
   description = "Telegram subdomain"
 }
 
+variable "web_proxy_login" {
+  type    = string
+  default = "user"
+}
+
+variable "web_proxy_password" {
+  type    = string
+  default = "pass"
+}
+
+variable "web_proxy_domain" {
+  type        = string
+  description = "Web proxy subdomain"
+}
+
 locals {
   # renovate: source=github-releases name=9seconds/mtg
   mtg_version = "2.1.7"
+
+  # renovate: source=github-releases name=tarampampam/3proxy-docker
+  z3proxy_version = "1.4.0"
 }
 
 # https://www.nomadproject.io/docs/job-specification/job
@@ -93,7 +111,66 @@ job "proxy-service" {
           name     = "mtg-tcp-port"
           type     = "tcp"
           port     = "tg"
-          interval = "5s"
+          interval = "10s"
+          timeout  = "1s"
+        }
+      }
+    }
+  }
+
+  group "web-proxy" {
+    count = 1
+
+    scaling {
+      enabled = true
+      min     = 0
+      max     = 2
+    }
+
+    network {
+      port "http_proxy" { to = 3128 /* port inside the container */ }
+    }
+
+    task "3proxy" {
+      driver = "docker"
+
+      # https://www.nomadproject.io/docs/drivers/docker
+      config {
+        image = "ghcr.io/tarampampam/3proxy:${ local.z3proxy_version }"
+        ports = ["http_proxy"]
+      }
+
+      env {
+        PROXY_LOGIN    = var.web_proxy_login
+        PROXY_PASSWORD = var.web_proxy_password
+      }
+
+      # https://www.nomadproject.io/docs/job-specification/resources
+      #  resources {
+      #    cpu        = 350 # in MHz
+      #    memory     = 64 # in MB
+      #    memory_max = 256 # in MB
+      #  }
+
+      # https://www.nomadproject.io/docs/job-specification/service
+      service {
+        name = "3proxy"
+        tags = [
+          "http", "proxy",
+
+          # Traefik tag examples: https://doc.traefik.io/traefik/routing/providers/consul-catalog/
+          "traefik.enable=true",
+          "traefik.tcp.routers.mtg.entrypoints=https",
+          "traefik.tcp.routers.mtg.rule=HostSNI(`${ var.web_proxy_domain }.iddqd.uk`)",
+          "traefik.tcp.routers.mtg.tls.passthrough=true",
+          "traefik.tcp.services.mtg.loadbalancer.server.port=${NOMAD_HOST_PORT_http_proxy}",
+        ]
+
+        check {
+          name     = "3proxy-tcp-port"
+          type     = "tcp"
+          port     = "http_proxy"
+          interval = "10s"
           timeout  = "1s"
         }
       }
