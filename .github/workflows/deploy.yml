@@ -1,0 +1,53 @@
+name: deploy
+
+on:
+  workflow_dispatch: {}
+  push:
+    paths: # docs: <https://bit.ly/3BSr3Xy>
+      - deploy/*.hcl
+      - .github/workflows/deploy.yml
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+    concurrency: production
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: deploy-token
+        with:
+          token: ${{ secrets.DOPPLER_NOMAD_PROJECT_TOKEN }}
+          project: nomad
+          secret-name: ACL_DEPLOY_TOKEN
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: tg-proxy-secret
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: TG_PROXY_SECRET
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: tg-proxy-subdomain
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: TG_PROXY_SUBDOMAIN
+
+      - uses: gacts/install-nomad@v1
+
+      - run: |
+          nomad run \
+            -var="tg_secret=${{ steps.tg-proxy-secret.outputs.secret }}" \
+            -var="tg_domain=${{ steps.tg-proxy-subdomain.outputs.secret }}" \
+              ./deploy/service.hcl
+        env: {NOMAD_ADDR: 'https://nomad.iddqd.uk/', NOMAD_TOKEN: '${{ steps.deploy-token.outputs.secret }}'}

@@ -1,11 +1,11 @@
 variable "tg_secret" {
   type        = string
-  description = "Generate a new secret: `docker run --rm nineseconds/mtg:2 generate-secret example.iddqd.uk`"
-  default     = "7pX02uliNE9fu23IlUbTFYNwcm94eS5pZGRxZC51aw"
+  description = "Generate a new secret: `docker run --rm nineseconds/mtg:2 generate-secret <mtg-subdomain>.iddqd.uk`"
 }
 
 variable "tg_domain" {
-  type = string
+  type        = string
+  description = "Telegram subdomain"
 }
 
 locals {
@@ -34,7 +34,7 @@ job "proxy-service" {
       # https://www.nomadproject.io/docs/job-specification/template
       template {
         data = <<-EOF
-        debug = true
+        #debug = true
 
         secret = "${ var.tg_secret }"
         bind-to = "0.0.0.0:443"
@@ -70,8 +70,8 @@ job "proxy-service" {
 
       # https://www.nomadproject.io/docs/job-specification/resources
       resources {
-        cpu        = 450 # in MHz
-        memory     = 128 # in MB
+        cpu        = 350 # in MHz
+        memory     = 64 # in MB
         memory_max = 256 # in MB
       }
 
@@ -88,6 +88,14 @@ job "proxy-service" {
           "traefik.tcp.routers.mtg.tls.passthrough=true",
           "traefik.tcp.services.mtg.loadbalancer.server.port=${NOMAD_HOST_PORT_tg}",
         ]
+
+        check {
+          name     = "mtg-tcp-port"
+          type     = "tcp"
+          port     = "tg"
+          interval = "5s"
+          timeout  = "1s"
+        }
       }
     }
   }
