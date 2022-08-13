@@ -1,0 +1,90 @@
+{
+  "admin": {
+    "disabled": true,
+    "config": {
+      "persist": false
+    }
+  },
+  "apps": {
+    "http": {
+      "grace_period": "2s",
+      "servers": {
+        "default-server": {
+          "listen": [":8080"],
+          "routes": [
+            {
+              "group": "metrics",
+              "match": [{
+                "method": ["GET"],
+                "path": ["/metrics"]
+              }],
+              "handle": [{
+                "handler": "metrics"
+              }]
+            },
+            {
+              "group": "health-check",
+              "match": [{
+                "method": ["GET"],
+                "path": ["/health/live"]
+              }],
+              "handle": [
+                {
+                  "handler": "headers",
+                  "response": {
+                    "delete": ["Server"]
+                  }
+                },
+                {
+                  "handler": "static_response",
+                  "status_code": 200,
+                  "body": "healthy\n",
+                  "close": true
+                }
+              ],
+              "terminal": true
+            },
+            {
+              "group": "static-files-cache-header",
+              "match": [{
+                "method": ["GET"],
+                "path": ["*.png", "*.jpg", "*.jpeg", "*.ico", "*.js", "*.css", "*.svg"]
+              }],
+              "handle": [
+                {
+                  "handler": "headers",
+                  "response": {
+                    "add": {"Cache-Control": ["public, max-age=604800, must-revalidate"]}
+                  }
+                }
+              ]
+            },
+            {
+              "group": "file-server",
+              "handle": [
+                {
+                  "handler": "encode"
+                },
+                {
+                  "handler": "headers",
+                  "response": {
+                    "delete": ["Server"]
+                  }
+                },
+                {
+                  "handler": "file_server",
+                  "root": "/web",
+                  "index_names": ["index.html", "index.htm"]
+                }
+              ]
+            }
+          ],
+          "automatic_https": {
+            "disable": true
+          },
+          "logs": {}
+        }
+      }
+    }
+  }
+}

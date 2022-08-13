@@ -23,6 +23,19 @@ jobs:
       - name: Check for GitLeaks
         uses: gacts/gitleaks@v1 # Action page: <https://github.com/gacts/gitleaks>
 
+  index-docker-image:
+    name: Build index docker image
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker/build-push-action@v3
+        with:
+          context: index
+          file: index/Dockerfile
+          push: false
+          tags: image:local
+
   validate-nomad-manifest:
     name: Validate Nomad manifest
     runs-on: ubuntu-20.04
@@ -31,4 +44,9 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - run: nomad job validate -var="tg_secret=foo" -var="tg_domain=bar" ./deploy/service.hcl
+      - run: |
+          nomad job validate \
+            -var="tg_secret=foo" \
+            -var="tg_subdomain=bar" \
+            -var="index_page_image=baz" \
+              ./deploy/service.hcl

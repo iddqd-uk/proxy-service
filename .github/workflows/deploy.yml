@@ -2,25 +2,45 @@ name: deploy
 
 on:
   workflow_dispatch: {}
-  push:
-    paths: # docs: <https://bit.ly/3BSr3Xy>
-      - deploy/*.hcl
-      - .github/workflows/deploy.yml
 
 concurrency:
   group: deploy
   cancel-in-progress: false
 
 jobs:
+  index-docker-image:
+    name: Build index docker image
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker/login-action@v2 # Action page: <https://github.com/docker/login-action>
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - {uses: gacts/github-slug@v1, id: slug} # Action page: <https://github.com/gacts/github-slug>
+
+      - uses: docker/build-push-action@v3 # TODO do not build the image if it already exists
+        with:
+          context: index
+          file: index/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-index:${{ steps.slug.outputs.commit-hash-short }}
+
   deploy:
     name: Deploy to production
     runs-on: ubuntu-20.04
     timeout-minutes: 5
     concurrency: production
+    needs: [index-docker-image]
     environment:
       name: production
     steps:
       - uses: actions/checkout@v3
+
+      - {uses: gacts/github-slug@v1, id: slug} # Action page: <https://github.com/gacts/github-slug>
 
       - uses: gacts/fetch-doppler-secret@v1
         id: deploy-token
@@ -43,11 +63,44 @@ jobs:
           project: proxy-service
           secret-name: TG_PROXY_SUBDOMAIN
 
+      - uses: gacts/fetch-doppler-secret@v1
+        id: web-proxy-login
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: WEB_PROXY_LOGIN
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: web-proxy-password
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: WEB_PROXY_PASSWORD
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: ghcr-login
+        with:
+          token: ${{ secrets.DOPPLER_GITHUB_PROJECT_TOKEN }}
+          project: github
+          secret-name: GHCR_LOGIN
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: ghcr-token
+        with:
+          token: ${{ secrets.DOPPLER_GITHUB_PROJECT_TOKEN }}
+          project: github
+          secret-name: GHCR_TOKEN
+
       - uses: gacts/install-nomad@v1
 
       - run: |
           nomad run \
             -var="tg_secret=${{ steps.tg-proxy-secret.outputs.secret }}" \
-            -var="tg_domain=${{ steps.tg-proxy-subdomain.outputs.secret }}" \
+            -var="tg_subdomain=${{ steps.tg-proxy-subdomain.outputs.secret }}" \
+            -var="web_proxy_login=${{ steps.web-proxy-login.outputs.secret }}" \
+            -var="web_proxy_password=${{ steps.web-proxy-password.outputs.secret }}" \
+            -var="docker_login=${{ steps.ghcr-login.outputs.secret }}" \
+            -var="docker_password=${{ steps.ghcr-token.outputs.secret }}" \
+            -var="index_page_image=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-index:${{ steps.slug.outputs.commit-hash-short }}" \
               ./deploy/service.hcl
         env: {NOMAD_ADDR: 'https://nomad.iddqd.uk/', NOMAD_TOKEN: '${{ steps.deploy-token.outputs.secret }}'}
