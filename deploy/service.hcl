@@ -59,6 +59,13 @@ job "proxy-service" {
   namespace   = "apps"
   priority    = 25
 
+  # https://www.nomadproject.io/docs/job-specification/update
+  update {
+    healthy_deadline  = "5m"
+    progress_deadline = "10m"
+    auto_revert       = true
+  }
+
   # https://www.nomadproject.io/docs/job-specification/group
   group "telegram" {
     count = 1
