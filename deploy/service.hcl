@@ -18,6 +18,16 @@ variable "web_proxy_password" {
   default = "pass"
 }
 
+variable "web_proxy_primary_dns" {
+  type    = string
+  default = ""
+}
+
+variable "web_proxy_secondary_dns" {
+  type    = string
+  default = ""
+}
+
 variable "index_page_image" {
   type        = string
   description = "Full path (ghcr.io/iddqd-uk/proxy-service-index:aabbccd) to the index page image docker image"
@@ -46,7 +56,7 @@ locals {
   mtg_version = "2.1.7"
 
   # renovate: source=github-releases name=tarampampam/3proxy-docker
-  z3proxy_version = "1.5.0"
+  z3proxy_version = "1.6.0"
 
   # renovate: source=github-releases name=tarampampam/http-proxy-daemon
   dyn_version = "0.6.0"
@@ -169,8 +179,10 @@ job "proxy-service" {
       }
 
       env {
-        PROXY_LOGIN    = var.web_proxy_login
-        PROXY_PASSWORD = var.web_proxy_password
+        PROXY_LOGIN        = var.web_proxy_login
+        PROXY_PASSWORD     = var.web_proxy_password
+        PRIMARY_RESOLVER   = var.web_proxy_primary_dns
+        SECONDARY_RESOLVER = var.web_proxy_secondary_dns
       }
 
       # https://www.nomadproject.io/docs/job-specification/resources

@@ -78,6 +78,20 @@ jobs:
           secret-name: WEB_PROXY_PASSWORD
 
       - uses: gacts/fetch-doppler-secret@v1
+        id: web-proxy-dns-1
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: WEB_PROXY_DNS_RESOLVER_1
+
+      - uses: gacts/fetch-doppler-secret@v1
+        id: web-proxy-dns-2
+        with:
+          token: ${{ secrets.DOPPLER_PROXY_SERVICE_PROJECT_TOKEN }}
+          project: proxy-service
+          secret-name: WEB_PROXY_DNS_RESOLVER_2
+
+      - uses: gacts/fetch-doppler-secret@v1
         id: ghcr-login
         with:
           token: ${{ secrets.DOPPLER_GITHUB_PROJECT_TOKEN }}
@@ -99,6 +113,8 @@ jobs:
             -var="tg_subdomain=${{ steps.tg-proxy-subdomain.outputs.secret }}" \
             -var="web_proxy_login=${{ steps.web-proxy-login.outputs.secret }}" \
             -var="web_proxy_password=${{ steps.web-proxy-password.outputs.secret }}" \
+            -var="web_proxy_primary_dns=${{ steps.web-proxy-dns-1.outputs.secret }}" \
+            -var="web_proxy_secondary_dns=${{ steps.web-proxy-dns-2.outputs.secret }}" \
             -var="docker_login=${{ steps.ghcr-login.outputs.secret }}" \
             -var="docker_password=${{ steps.ghcr-token.outputs.secret }}" \
             -var="index_page_image=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-index:${{ steps.slug.outputs.commit-hash-short }}" \
