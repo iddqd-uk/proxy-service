@@ -56,7 +56,7 @@ locals {
   mtg_version = "2.1.7"
 
   # renovate: source=github-releases name=tarampampam/3proxy-docker
-  z3proxy_version = "1.6.0"
+  z3proxy_version = "1.7.0"
 
   # renovate: source=github-releases name=tarampampam/http-proxy-daemon
   dyn_version = "0.6.0"
