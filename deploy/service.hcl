@@ -90,7 +90,7 @@ job "proxy-service" {
       # https://www.nomadproject.io/docs/job-specification/template
       template {
         data = <<-EOF
-        #debug = true
+        debug = true
 
         secret = "${ var.tg_secret }"
         bind-to = "0.0.0.0:443"
