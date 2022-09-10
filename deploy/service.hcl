@@ -243,7 +243,7 @@ job "proxy-service" {
       # https://www.nomadproject.io/docs/job-specification/resources
       resources {
         cpu        = 50 # in MHz
-        memory     = 32 # in MB
+        memory     = 42 # in MB
         memory_max = 64 # in MB
       }
 
@@ -288,8 +288,8 @@ job "proxy-service" {
       # https://www.nomadproject.io/docs/job-specification/resources
       resources {
         cpu        = 170 # in MHz
-        memory     = 16 # in MB
-        memory_max = 32 # in MB
+        memory     = 24 # in MB
+        memory_max =42 # in MB
       }
 
       # https://www.nomadproject.io/docs/job-specification/service
