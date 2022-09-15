@@ -88,16 +88,17 @@ job "proxy-service" {
       driver = "docker"
 
       # https://www.nomadproject.io/docs/job-specification/template
+      # https://github.com/9seconds/mtg/blob/master/example.config.toml
       template {
         data = <<-EOF
-        debug = true
+        debug = false
 
         secret = "${ var.tg_secret }"
         bind-to = "0.0.0.0:443"
-        concurrency = 256
+        concurrency = 512
         prefer-ip = "prefer-ipv4"
         domain-fronting-port = 443
-        tolerate-time-skewness = "10s"
+        tolerate-time-skewness = "3h"
 
         [network]
         doh-ip = "9.9.9.9"
