@@ -119,10 +119,11 @@ job "proxy-service" {
 
       # https://www.nomadproject.io/docs/drivers/docker
       config {
-        image   = "ghcr.io/9seconds/mtg:${ local.mtg_version }"
-        ports   = ["tg"]
-        volumes = ["config.toml:/etc/config.toml:ro"]
-        args    = ["run", "/etc/config.toml"]
+        image          = "ghcr.io/9seconds/mtg:${ local.mtg_version }"
+        ports          = ["tg"]
+        volumes        = ["config.toml:/etc/config.toml:ro"]
+        args           = ["run", "/etc/config.toml"]
+        cpu_hard_limit = true
       }
 
       # https://www.nomadproject.io/docs/job-specification/resources
@@ -290,7 +291,7 @@ job "proxy-service" {
       resources {
         cpu        = 170 # in MHz
         memory     = 24 # in MB
-        memory_max =42 # in MB
+        memory_max = 42 # in MB
       }
 
       # https://www.nomadproject.io/docs/job-specification/service
