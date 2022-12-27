@@ -17,8 +17,8 @@ Stack of the services for proxying different kinds (such as `HTTP` and `TCP`) of
 
 - [RKN & Telegram Fake TLS](https://habr.com/ru/news/t/469335/)
 
-[badge_tests]:https://img.shields.io/github/workflow/status/iddqd-uk/proxy-service/tests/main?logo=github&logoColor=white&label=tests
-[badge_deploy]:https://img.shields.io/github/workflow/status/iddqd-uk/proxy-service/deploy/main?logo=github&logoColor=white&label=deploy
+[badge_tests]:https://img.shields.io/github/actions/workflow/status/iddqd-uk/proxy-service/tests.yml?branch=main&logo=github&logoColor=white&label=tests
+[badge_deploy]:https://img.shields.io/github/actions/workflow/status/iddqd-uk/proxy-service/deploy.yml?logo=github&logoColor=white&label=deploy
 [link_actions]:https://github.com/iddqd-uk/proxy-service/actions
 [link_deploy]:https://github.com/iddqd-uk/proxy-service/actions/workflows/deploy.yml
 
