@@ -22,7 +22,7 @@ jobs:
 
       - {uses: gacts/github-slug@v1, id: slug} # Action page: <https://github.com/gacts/github-slug>
 
-      - uses: docker/build-push-action@v3 # TODO do not build the image if it already exists
+      - uses: docker/build-push-action@v4 # TODO do not build the image if it already exists
         with:
           context: index
           file: index/Dockerfile
